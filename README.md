@@ -14,3 +14,8 @@ It is a graph viewer written in Python, plotly, and tkinter for visualization an
   
 2. Unit step graph
    - Animated moving distance or size, etc. include time and etc, on the X-axis of time series data
+
+![time_series](https://user-images.githubusercontent.com/79625703/143581205-4864aff8-23b0-41cf-b8f8-5ed6e0c7c7d8.jpeg)
+
+
+![unit_plot](https://user-images.githubusercontent.com/79625703/143581180-73f5809f-8cd1-4f90-b78c-84ec22ab26ec.jpeg)
