@@ -35,32 +35,18 @@ netDir = fDir
 #=====================================================
 class OOP():
     def __init__(self):         # Initializer method
-        if int(datetime.datetime.now().year) <= 2021:
 
-            # Create instance
-            self.win = tk.Tk()   
-            
-            # Add a title       
-            self.win.title(" Graph Viewer for Mass log")  
-            
-            # Create a Queue
-            self.gui_queue = Queue() 
-                
-            self.create_widgets()
+        # Create instance
+        self.win = tk.Tk()   
 
-        else:
-            os._exit()
+        # Add a title       
+        self.win.title(" Graph Viewer for Mass log")  
 
-        # # Create instance
-        # self.win = tk.Tk()   
-        
-        # # Add a title       
-        # self.win.title(" Graph Viewer for Mass log")  
-        
-        # # Create a Queue
-        # self.gui_queue = Queue() 
-            
-        # self.create_widgets()
+        # Create a Queue
+        self.gui_queue = Queue() 
+
+        self.create_widgets()
+
 
     # update progressbar in callback loop
     def run_progressbar_0(self):
@@ -69,7 +55,6 @@ class OOP():
         self.Timeseries_scrol.see("end")  
 
         try:
-        # plot_Timeseries(main_list, sub_list, main_file, sub_file, Y1_Axis, Y2_Axis, Y1_log_OX, Y2_log_OX, main_path, sub_path, progress)
             plot_Timeseries(self.a, 
             self.Timeseries_main_fileEntry.get(), self.Timeseries_sub_fileEntry.get(), 
             self.number_1_chosen.get(), self.number_2_chosen.get(), 
@@ -93,7 +78,6 @@ class OOP():
         self.Unit_scrol.see("end")  
         
         try:
-            # plot_Unit(main_list, op_file, main_file, step_start, step_end, X_Axis, Y1_Axis, Y2_Axis, Y1_log_OX, Y2_log_OX, sum_CSV, save_path, progress)
             plot_Unit(self.a,
             self.Unit_op_fileEntry.get(), self.Unit_main_fileEntry.get(), self.Unit_sub_fileEntry.get(), 
             self.step_start_chosen.get(), self.step_end_chosen.get(),
@@ -282,12 +266,6 @@ class OOP():
             self.Timeseries_scrol.see("end")
 
 
-        # ttk.Label(setAxisData, text="  X Axis : ").grid(column=0, row=5, sticky='WE')
-        # number_0 = tk.StringVar()
-        # number_0_chosen = ttk.Combobox(setAxisData, width=35, textvariable=number_0, state='readonly', postcommand=comboCallback_0)
-        # number_0_chosen.grid(column=1, row=5)
-        # number_0_chosen.bind("<<ComboboxSelected>>", callbackFunc_0)
-
         ttk.Label(setAxisData, text=" Y1 Axis : ").grid(column=0, row=6, sticky='WE')
         self.number_1 = tk.StringVar()
         self.number_1_chosen = ttk.Combobox(setAxisData, width=35, textvariable=self.number_1, state='readonly', postcommand=comboCallback_0)
@@ -394,7 +372,6 @@ class OOP():
         def Unit_op_getFileName():
             fDir  = path.dirname(__file__)
             fName = fd.askopenfilename(parent=self.win, initialdir=fDir)
-            # self.Timeseries_main_fileEntry.config(state='enabled')
             self.Unit_op_fileEntry.delete(0, tk.END)
             self.Unit_op_fileEntry.insert(0, fName)
             self.Unit_scrol.insert(tk.INSERT, "Operation: " + str(fName[int(len(fDir)+1):]) + '\n') 
@@ -404,7 +381,6 @@ class OOP():
         def Unit_main_getFileName():
             fDir  = path.dirname(__file__)
             fName = fd.askopenfilename(parent=self.win, initialdir=fDir)
-            # self.Timeseries_sub_fileEntry.config(state='enabled')
             self.Unit_main_fileEntry.delete(0, tk.END)
             self.Unit_main_fileEntry.insert(0, fName)
             self.Unit_scrol.insert(tk.INSERT, "Main : " + str(fName[int(len(fDir)+1):]) + '\n') 
@@ -423,7 +399,6 @@ class OOP():
 
         def getFolderName2():
             fDir2 = fd.askdirectory()
-            # self.Unit_save_fileEntry.config(state='enabled')
             self.Unit_save_fileEntry.delete(0, tk.END)
             self.Unit_save_fileEntry.insert(0, fDir2)
             
@@ -542,10 +517,7 @@ class OOP():
         ttk.Label(selSTEPorder, text="  START : ").grid(column=0, row=2, sticky='WE')
         self.step_start = tk.StringVar()
         self.step_start_chosen = ttk.Combobox(selSTEPorder, width=35, textvariable=self.step_start, state='readonly')
-        self.step_start_chosen['values'] = ("Auto Step:Step_Face Up_Start", "Auto Step:Step_Dechuck_Start", "Auto Step:Step_PinUP_Start",
-        "Auto Step:Step_GL Unload_Start", "Auto Step:Step_GL Load_Start", "Auto Step:Step_Pin Down_Start", "Auto Step:Step_Chuck_Start", 
-        "Auto Step:Step_Face Down_Start", "Auto Step:Step_Face Down_End", "Auto Step:Step_Move Align_Start", "Auto Step:Step_Align_Start", 
-        "Auto Step:Step_Move Process_Start", "Auto Step:Step_Process_Start", "Auto Step:Step_Move Home_Start", "PreOffSet_X1")
+        self.step_start_chosen['values'] = ("any more", "any more")
         self.step_start_chosen.grid(column=1, row=2)
         self.step_start_chosen.current(0)
         self.step_start_chosen.bind("<<ComboboxSelected>>", callbackFunc_3)
@@ -554,9 +526,7 @@ class OOP():
         ttk.Label(selSTEPorder, text="  END   : ").grid(column=0, row=3, sticky='WE')
         self.step_end = tk.StringVar()
         self.step_end_chosen = ttk.Combobox(selSTEPorder, width=35, textvariable=self.step_end, state='readonly')
-        self.step_end_chosen['values'] = ("Auto Step:Step_Face Up_End", "Auto Step:Step_Dechuck_End", "Auto Step:Step_PinUp_End", "Auto Step:Step_GL Unload_End", 
-        "Auto Step:Step_GL Load_End", "Auto Step:Step_PinDown_End", "Auto Step:Step_Chuck_End", "Auto Step:Step_Face Down_End", "Auto Step:Step_Move Align_End", 
-        "Auto Step:Step_Align_End", "Auto Step:Step_Move Process_End", "Auto Step:Step_Process_End", "Auto Step:Step_Move Home_End", "PreOffSet_Y2")
+        self.step_end_chosen['values'] = ("any more", "any more")
         self.step_end_chosen.grid(column=1, row=3)
         self.step_end_chosen.current(0)
         self.step_end_chosen.bind("<<ComboboxSelected>>", callbackFunc_4)
@@ -570,25 +540,6 @@ class OOP():
         # We are creating a container frame to hold all other widgets
         setAxisData = ttk.LabelFrame(tab2, text=' Select Axis data  ')
         setAxisData.grid(column=0, row=3, padx=10, pady=5, sticky='WE')
-
-
-        # Combobox callback 
-        # def comboCallback_1():
-        #     if int(path.isfile(self.Unit_op_file.get())) + int(path.isfile(self.Unit_main_file.get())) == 0:
-        #         self.Unit_scrol.insert(tk.INSERT, "Plz select your file." + '\n')
-        #         self.Unit_scrol.see("end")
-        #     elif int(path.isfile(self.Unit_op_file.get())) + int(path.isfile(self.Unit_main_file.get())) == 1:
-        #         self.Unit_scrol.insert(tk.INSERT, "Plz select MAIN file." + '\n')
-        #         self.Unit_scrol.see("end")
-        #     else:
-        #         self.b = list(pd.read_csv(self.Unit_main_file.get(), header=None, nrows=1).iloc[0][0:])
-        #         if len(self.b) == 0:
-        #             self.Unit_scrol.insert(tk.INSERT, "These are wrong file" + '\n')
-        #             self.Unit_scrol.see("end")
-        #         else:
-        #             [self.number_3_chosen['values'], self.number_4_chosen['values'], self.number_5_chosen['values']] = [self.b, self.b, self.b]
-        #             self.Unit_scrol.insert(tk.INSERT, "You are selected OP & MAIN" + '\n')
-        #             self.Unit_scrol.see("end")    
 
 
         def comboCallback_1():
