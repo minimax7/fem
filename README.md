@@ -1,6 +1,6 @@
 #plotly #tkinter #python #graph
 
-시계열 데이터의 시각화 분석을 위하여 파이썬과 plotly, tkinter로 작성하 그래프 뷰어 입니다.
+시계열 데이터의 시각화 분석을 위하여 파이썬과 plotly, tkinter로 작성한 그래프 뷰어 입니다.
 
 
 기본 뼈대는 파이썬으로 작성하였습니다.
