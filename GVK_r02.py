@@ -11,7 +11,6 @@ from tkinter import ttk
 from tkinter import scrolledtext
 from tkinter import Menu
 from tkinter import messagebox as msg
-from ToolTip import ToolTip
 
 import resources
 
@@ -726,12 +725,7 @@ class OOP():
         # call function
         self.usingGlobal()
         
-        
-        # Add Tooltips -----------------------------------------------------
-        # Add a Tooltip to the Spinbox
-        ToolTip(self.Timeseries_scrol, 'This is a Message box')
-        ToolTip(self.Unit_scrol, 'This is a Message box')
-
+   
                  
 #======================
 # Start GUI
