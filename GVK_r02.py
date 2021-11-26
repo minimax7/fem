@@ -1,4 +1,6 @@
 '''
+Origin ref. from PacktPublishing/Python-GUI-Programming-Cookbook-Third-Edition
+
 Created on Oct 04, 2021
 @author: Young Min Kim
 revision on Nov 17, 2021
