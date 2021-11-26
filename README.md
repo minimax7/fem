@@ -23,6 +23,11 @@ GUI는 tkinter로 작성하였습니다.
 2. Unit step graph
   - 시계열 데이터 중 X축에 시간이 아닌 이동 거리 혹은 크기 등을 시간 순서대로 애니메이션으로 그림
 
+데이터 분석을 하는 모두를 위해서 공개하고, 좀 더 편리한 사용을 위한 모두의 도움이 필요합니다.
+
+It is open to everyone who analyzes time series data, and everyone's help is needed for more convenient use.
+
+
 
 Using Python 3.9 for body.
 - Consider that select X and Two Y axies from Two LOG file.
