@@ -3,8 +3,9 @@ Origin ref. from PacktPublishing/Python-GUI-Programming-Cookbook-Third-Edition
 
 Created on Oct 04, 2021
 @author: Young Min Kim
-revision on Nov 17, 2021
+revision on Apr 12, 2022
 '''
+
 #======================
 # imports
 #======================
@@ -13,6 +14,7 @@ from tkinter import ttk
 from tkinter import scrolledtext
 from tkinter import Menu
 from tkinter import messagebox as msg
+from ToolTip import ToolTip
 
 import resources
 
@@ -38,17 +40,41 @@ netDir = fDir
 class OOP():
     def __init__(self):         # Initializer method
 
+        # if int(datetime.datetime.now().year) <= 2022 and int(datetime.datetime.now().month) <= 6:
+
+        #     # Create instance
+        #     self.win = tk.Tk()   
+            
+        #     # Add a title       
+        #     self.win.title(" GVK for Limited")  
+            
+        #     # Create a Queue
+        #     self.gui_queue = Queue() 
+                
+        #     self.create_widgets()
+
+        # else:
+        #     self.win = tk.Tk()
+        #     self.win.title(" GVK")
+        #     self.win.geometry("200x100")
+        #     self.win.resizable(0,0)
+
+        #     lbl = ttk.Label(self.win, text="  The license period\n  has expired.\n\n  You must remove IT!", font="NanumGothic 12")
+        #     lbl.grid(row=1, column=1)
+
+        #     self.win.mainloop()
+        #     # os._exit()
+
         # Create instance
         self.win = tk.Tk()   
-
+        
         # Add a title       
         self.win.title(" Graph Viewer for Mass log")  
-
+        
         # Create a Queue
         self.gui_queue = Queue() 
-
+            
         self.create_widgets()
-
 
     # update progressbar in callback loop
     def run_progressbar_0(self):
@@ -57,9 +83,12 @@ class OOP():
         self.Timeseries_scrol.see("end")  
 
         try:
+        # plot_Timeseries(main_list, sub_list, main_file, sub_file, Y1_Axis, Y2_Axis, Y1_log_OX, Y2_log_OX, main_path, sub_path, progress)
             plot_Timeseries(self.a, 
             self.Timeseries_main_fileEntry.get(), self.Timeseries_sub_fileEntry.get(), 
             self.number_1_chosen.get(), self.number_2_chosen.get(), 
+            self.number_7_chosen.get(), self.number_8_chosen.get(), 
+            self.number_9_chosen.get(),
             self.chVar_0.get(), self.chVar_1.get(), 
             self.progress_bar_0)
 
@@ -80,6 +109,7 @@ class OOP():
         self.Unit_scrol.see("end")  
         
         try:
+            # plot_Unit(main_list, op_file, main_file, step_start, step_end, X_Axis, Y1_Axis, Y2_Axis, Y1_log_OX, Y2_log_OX, sum_CSV, save_path, progress)
             plot_Unit(self.a,
             self.Unit_op_fileEntry.get(), self.Unit_main_fileEntry.get(), self.Unit_sub_fileEntry.get(), 
             self.step_start_chosen.get(), self.step_end_chosen.get(),
@@ -231,7 +261,9 @@ class OOP():
                     self.Timeseries_scrol.insert(tk.INSERT, "These are wrong file" + '\n')
                     self.Timeseries_scrol.see("end")
                 else:
-                    [self.number_1_chosen['values'], self.number_2_chosen['values']] = [self.a + self.b, self.a + self.b]
+                    [self.number_1_chosen['values'], self.number_2_chosen['values'],
+                    self.number_7_chosen['values'], self.number_8_chosen['values'],
+                    self.number_9_chosen['values']] = [self.a + self.b, self.a + self.b, self.a + self.b, self.a + self.b, self.a + self.b]
                     self.Timeseries_scrol.insert(tk.INSERT, "You are selected MAIN & SUB" + '\n')
                     self.Timeseries_scrol.see("end")    
             elif int(path.isfile(self.Timeseries_main_file.get())) == 0:
@@ -240,7 +272,9 @@ class OOP():
                     self.Timeseries_scrol.insert(tk.INSERT, "SUB is wrong file" + '\n')
                     self.Timeseries_scrol.see("end")
                 else:
-                    [self.number_1_chosen['values'], self.number_2_chosen['values']] = [self.b, self.b]
+                    [self.number_1_chosen['values'], self.number_2_chosen['values'],
+                    self.number_7_chosen['values'], self.number_8_chosen['values'],
+                    self.number_9_chosen['values']] = [self.b, self.b, self.b, self.b, self.b]
                     self.Timeseries_scrol.insert(tk.INSERT, "You are only selected SUB" + '\n')
                     self.Timeseries_scrol.see("end")
             else:
@@ -249,7 +283,9 @@ class OOP():
                     self.Timeseries_scrol.insert(tk.INSERT, "MAIN is wrong file" + '\n')
                     self.Timeseries_scrol.see("end")
                 else:
-                    [self.number_1_chosen['values'], self.number_2_chosen['values']] = [self.a, self.a]
+                    [self.number_1_chosen['values'], self.number_2_chosen['values'],
+                    self.number_7_chosen['values'], self.number_8_chosen['values'],
+                    self.number_9_chosen['values']] = [self.a, self.a, self.a, self.a, self.a]
                     self.Timeseries_scrol.insert(tk.INSERT, "You are only selected MAIN" + '\n')
                     self.Timeseries_scrol.see("end")
 
@@ -264,9 +300,26 @@ class OOP():
             self.Timeseries_scrol.see("end")
 
         def callbackFunc_2(event):
-            self.Timeseries_scrol.insert(tk.INSERT, 'Y2 Axis is ' + self.number_2_chosen.get() + '\n')
+            self.Timeseries_scrol.insert(tk.INSERT, 'Y2_1 Axis is ' + self.number_2_chosen.get() + '\n')
             self.Timeseries_scrol.see("end")
 
+        def callbackFunc_7(event):
+            self.Timeseries_scrol.insert(tk.INSERT, 'Y2_2 Axis is ' + self.number_7_chosen.get() + '\n')
+            self.Timeseries_scrol.see("end")
+
+        def callbackFunc_8(event):
+            self.Timeseries_scrol.insert(tk.INSERT, 'Y2_3 Axis is ' + self.number_8_chosen.get() + '\n')
+            self.Timeseries_scrol.see("end")
+
+        def callbackFunc_9(event):
+            self.Timeseries_scrol.insert(tk.INSERT, 'Y2_4 Axis is ' + self.number_9_chosen.get() + '\n')
+            self.Timeseries_scrol.see("end")
+
+        # ttk.Label(setAxisData, text="  X Axis : ").grid(column=0, row=5, sticky='WE')
+        # number_0 = tk.StringVar()
+        # number_0_chosen = ttk.Combobox(setAxisData, width=35, textvariable=number_0, state='readonly', postcommand=comboCallback_0)
+        # number_0_chosen.grid(column=1, row=5)
+        # number_0_chosen.bind("<<ComboboxSelected>>", callbackFunc_0)
 
         ttk.Label(setAxisData, text=" Y1 Axis : ").grid(column=0, row=6, sticky='WE')
         self.number_1 = tk.StringVar()
@@ -274,11 +327,30 @@ class OOP():
         self.number_1_chosen.grid(column=1, row=6)
         self.number_1_chosen.bind("<<ComboboxSelected>>", callbackFunc_1)
 
-        ttk.Label(setAxisData, text=" Y2 Axis : ").grid(column=0, row=7, sticky='WE')
+        ttk.Label(setAxisData, text=" Y2_1 Axis : ").grid(column=0, row=7, sticky='WE')
         self.number_2 = tk.StringVar()
         self.number_2_chosen = ttk.Combobox(setAxisData, width=35, textvariable=self.number_2, state='readonly', postcommand=comboCallback_0)
         self.number_2_chosen.grid(column=1, row=7)
         self.number_2_chosen.bind("<<ComboboxSelected>>", callbackFunc_2)
+
+        ttk.Label(setAxisData, text=" Y2_2 Axis : ").grid(column=0, row=8, sticky='WE')
+        self.number_7 = tk.StringVar()
+        self.number_7_chosen = ttk.Combobox(setAxisData, width=35, textvariable=self.number_7, state='readonly', postcommand=comboCallback_0)
+        self.number_7_chosen.grid(column=1, row=8)
+        self.number_7_chosen.bind("<<ComboboxSelected>>", callbackFunc_7)
+
+        ttk.Label(setAxisData, text=" Y2_3 Axis : ").grid(column=0, row=9, sticky='WE')
+        self.number_8 = tk.StringVar()
+        self.number_8_chosen = ttk.Combobox(setAxisData, width=35, textvariable=self.number_8, state='readonly', postcommand=comboCallback_0)
+        self.number_8_chosen.grid(column=1, row=9)
+        self.number_8_chosen.bind("<<ComboboxSelected>>", callbackFunc_8)
+
+        ttk.Label(setAxisData, text=" Y2_4 Axis : ").grid(column=0, row=10, sticky='WE')
+        self.number_9 = tk.StringVar()
+        self.number_9_chosen = ttk.Combobox(setAxisData, width=35, textvariable=self.number_9, state='readonly', postcommand=comboCallback_0)
+        self.number_9_chosen.grid(column=1, row=10)
+        self.number_9_chosen.bind("<<ComboboxSelected>>", callbackFunc_9)
+
 
 
         # Add some space around each label
@@ -307,7 +379,7 @@ class OOP():
         scrolTEXTbox.grid(column=0, row=5, padx=10, pady=5, sticky='WE')
 
         # Using a scrolled Text control    
-        scrol_w = 52; scrol_h = 15                 # increase sizes
+        scrol_w = 52; scrol_h = 8                 # increase sizes
         self.Timeseries_scrol = scrolledtext.ScrolledText(scrolTEXTbox, width=scrol_w, height=scrol_h, wrap=tk.WORD)
         self.Timeseries_scrol.grid(column=0, row=0, sticky='WE', columnspan=3)  
 
@@ -334,6 +406,9 @@ class OOP():
             self.Unit_op_file.set('')
             self.number_1_chosen.set('')
             self.number_2_chosen.set('')
+            self.number_7_chosen.set('')
+            self.number_8_chosen.set('')
+            self.number_9_chosen.set('')            
             self.chVar_0.set(0)
             self.chVar_1.set(0)
             self.Timeseries_main_file.set('')
@@ -348,6 +423,9 @@ class OOP():
             self.chVar_5.set(0)
             self.number_1_chosen.set('')
             self.number_2_chosen.set('')
+            self.number_7_chosen.set('')
+            self.number_8_chosen.set('')
+            self.number_9_chosen.set('')              
             self.chVar_0.set(0)
             self.chVar_1.set(0)
 
@@ -374,6 +452,7 @@ class OOP():
         def Unit_op_getFileName():
             fDir  = path.dirname(__file__)
             fName = fd.askopenfilename(parent=self.win, initialdir=fDir)
+            # self.Timeseries_main_fileEntry.config(state='enabled')
             self.Unit_op_fileEntry.delete(0, tk.END)
             self.Unit_op_fileEntry.insert(0, fName)
             self.Unit_scrol.insert(tk.INSERT, "Operation: " + str(fName[int(len(fDir)+1):]) + '\n') 
@@ -383,6 +462,7 @@ class OOP():
         def Unit_main_getFileName():
             fDir  = path.dirname(__file__)
             fName = fd.askopenfilename(parent=self.win, initialdir=fDir)
+            # self.Timeseries_sub_fileEntry.config(state='enabled')
             self.Unit_main_fileEntry.delete(0, tk.END)
             self.Unit_main_fileEntry.insert(0, fName)
             self.Unit_scrol.insert(tk.INSERT, "Main : " + str(fName[int(len(fDir)+1):]) + '\n') 
@@ -401,6 +481,7 @@ class OOP():
 
         def getFolderName2():
             fDir2 = fd.askdirectory()
+            # self.Unit_save_fileEntry.config(state='enabled')
             self.Unit_save_fileEntry.delete(0, tk.END)
             self.Unit_save_fileEntry.insert(0, fDir2)
             
@@ -519,7 +600,7 @@ class OOP():
         ttk.Label(selSTEPorder, text="  START : ").grid(column=0, row=2, sticky='WE')
         self.step_start = tk.StringVar()
         self.step_start_chosen = ttk.Combobox(selSTEPorder, width=35, textvariable=self.step_start, state='readonly')
-        self.step_start_chosen['values'] = ("any more", "any more")
+        self.step_start_chosen['values'] = ("Something")
         self.step_start_chosen.grid(column=1, row=2)
         self.step_start_chosen.current(0)
         self.step_start_chosen.bind("<<ComboboxSelected>>", callbackFunc_3)
@@ -528,7 +609,7 @@ class OOP():
         ttk.Label(selSTEPorder, text="  END   : ").grid(column=0, row=3, sticky='WE')
         self.step_end = tk.StringVar()
         self.step_end_chosen = ttk.Combobox(selSTEPorder, width=35, textvariable=self.step_end, state='readonly')
-        self.step_end_chosen['values'] = ("any more", "any more")
+        self.step_end_chosen['values'] = ("Something")
         self.step_end_chosen.grid(column=1, row=3)
         self.step_end_chosen.current(0)
         self.step_end_chosen.bind("<<ComboboxSelected>>", callbackFunc_4)
@@ -665,7 +746,7 @@ class OOP():
         
         # Display a Message Box
         def _msgBox():
-            msg.showinfo('GVM Info Box', 'Revision r02 \n\nOptimize Logic and Remove Usless if statement.\n\nCopyright by KIM\n\nLicensed until 2021.\nPast 2021, You should be deleted it.\n\nFor my Galaxy and CG children')  
+            msg.showinfo('GVM Info Box', 'Revision r0241 \n\nImproves Step order cleaning.\nAdd Step End to Start Sampling.\n\nCopyright by KIM\n\n2022년까지만 License가 허가 됨.\n라이센스에 따라 2022년이 지나면 사용자는 지워야 합니다.\n\nFor my Galaxy and CG children')  
             
         # Add another Menu to the Menu Bar and an item
         help_menu = Menu(menu_bar, tearoff=0)
@@ -678,7 +759,12 @@ class OOP():
         # call function
         self.usingGlobal()
         
-   
+        
+        # Add Tooltips -----------------------------------------------------
+        # Add a Tooltip to the Spinbox
+        ToolTip(self.Timeseries_scrol, 'This is a Message box')
+        ToolTip(self.Unit_scrol, 'This is a Message box')
+
                  
 #======================
 # Start GUI
