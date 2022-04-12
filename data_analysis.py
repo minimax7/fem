@@ -1,503 +1,770 @@
 '''
-Created on Oct 01, 2021
+Created on Oct 04, 2021
 @author: Young Min Kim
+revision on Apr 12, 2022
 '''
+#======================
+# imports
+#======================
+import tkinter as tk
+from tkinter import ttk
+from tkinter import scrolledtext
+from tkinter import Menu
+from tkinter import messagebox as msg
+from ToolTip import ToolTip
 
-import pandas as pd 
-from tqdm import tqdm
+import resources
+
+import pandas as pd
+
+import datetime
+import os
+
+from queue import Queue
+
+from tkinter import filedialog as fd
 from os import path
 
-import plotly.graph_objects as go
-from plotly.subplots import make_subplots
+from data_analysis import plot_Timeseries, plot_Unit
 
+# Module level GLOBALS
+GLOBAL_CONST = 42
+fDir   = path.dirname(__file__)
+netDir = fDir
 
-def plot_Timeseries(main_list, main_file, sub_file, Y1_Axis, Y2_Axis, Y1_log_OX, Y2_log_OX, progress):
 
-    progress["maximum"] = 100
+#=====================================================
+class OOP():
+    def __init__(self):         # Initializer method
 
-    # check is it logarithm ?
-    if Y1_log_OX == 1:
-        Y1_log_OX = "log"
-    else:
-        Y1_log_OX = "linear"
+        # if int(datetime.datetime.now().year) <= 2022 and int(datetime.datetime.now().month) <= 6:
 
-    if Y2_log_OX == 1:
-        Y2_log_OX = "log"
-    else:
-        Y2_log_OX = "linear"
-
-
-
-    # preparation of figure structure
-    fig = make_subplots(rows=1, cols=1, subplot_titles=('Graph of ' + str(Y1_Axis) + ' and ' + str(Y2_Axis)), specs=[[{"secondary_y": True}]])
-
-    progress["value"] = 10   # increment progressbar
-    progress.update() 
-
-
-
-    # make variable list for data clean
-    variable = [Y1_Axis, Y2_Axis]
-
-    main_var = []
-    sub_var = []
-
-    for i in range(len(variable)):
-        if variable[i] in main_list:
-            main_var.append(variable[i])
-        else:
-            sub_var.append(variable[i])
-
-    main_var.append("Time")
-    main_var = list(filter(None, main_var))
-    sub_var.append("Time")
-    sub_var = list(filter(None, sub_var))
-
-    progress["value"] = 20   # increment progressbar
-    progress.update() 
-
-
-
-    # Preparation of figure data
-    temp_main = pd.read_csv(main_file, index_col=None, header=0, usecols=main_var)
-    temp_main["Time"] = pd.to_datetime(temp_main["Time"], format = '%Y-%m-%d %H:%M:%S.%f')
-
-    progress["value"] = 30   # increment progressbar
-    progress.update() 
-
-    
-    if len(sub_var) == 1:
-        pass    
-    else:    
-        temp_sub = pd.read_csv(sub_file, index_col=None, header=0, usecols=sub_var)
-        temp_sub["Time"] = pd.to_datetime(temp_sub["Time"], format = '%Y-%m-%d %H:%M:%S.%f')
-
-    progress["value"] = 40   # increment progressbar
-    progress.update() 
-
-
-
-    # make figures axies
-    if Y1_Axis in main_var:
-        fig.add_trace(go.Scatter(x=temp_main["Time"], y=temp_main[Y1_Axis], mode='lines', name=str(Y1_Axis), opacity=0.9), row=1, col=1)
-    elif Y1_Axis in sub_var:
-        fig.add_trace(go.Scatter(x=temp_sub["Time"], y=temp_sub[Y1_Axis], mode='lines', name=str(Y1_Axis), opacity=0.9), row=1, col=1)
-    else:
-        pass
-
-    progress["value"] = 60   # increment progressbar
-    progress.update() 
-
-
-    if Y2_Axis in main_var:
-        fig.add_trace(go.Scatter(x=temp_main["Time"], y=temp_main[Y2_Axis], mode='lines', name=str(Y2_Axis), opacity=0.9), row=1, col=1, secondary_y=True)
-    elif Y2_Axis in sub_var:            
-        fig.add_trace(go.Scatter(x=temp_sub["Time"], y=temp_sub[Y2_Axis], mode='lines', name=str(Y2_Axis), opacity=0.9), row=1, col=1, secondary_y=True)
-    else:
-        pass
-
-    progress["value"] = 80   # increment progressbar
-    progress.update()         
-
-
-    # decoration of figure
-    fig.update_yaxes(title_text=str(Y1_Axis), type=Y1_log_OX, row=1, col=1)
-    fig.update_yaxes(title_text=str(Y2_Axis), type=Y2_log_OX, row=1, col=1, secondary_y=True)    
-
-    progress["value"] = 90   # increment progressbar
-    progress.update() 
-
-
-    fig.update_xaxes(title_text="<b>Process time ( hh-mm-ss )<b>", row=1, col=1)
-    fig.update_layout(title= " Monitoring @MURI") 
-    fig.show()
-
-
-
-
-
-def plot_Unit(main_list, op_file, main_file, sub_file, step_start, step_end, X_Axis, Y1_Axis, Y2_Axis, Y1_log_OX, Y2_log_OX, sum_CSV, save_path, progress):
-    
-    progress["maximum"] = 100
-
-    # check is it logarithm ?
-    if Y1_log_OX == 1:
-        Y1_log_OX = "log"
-    else:
-        Y1_log_OX = "linear"
-
-    if Y2_log_OX == 1:
-        Y2_log_OX = "log"
-    else:
-        Y2_log_OX = "linear"
-
-
-
-    # make variable list for data clean
-    variable = [X_Axis, Y1_Axis, Y2_Axis]
-
-    main_var = []
-    sub_var = []
-
-    for i in range(len(variable)):
-        if variable[i] in main_list:
-            main_var.append(variable[i])
-        else:
-            sub_var.append(variable[i])
-
-    
-    if "Time" in main_var:
-        pass
-    else:
-        main_var.append("Time")
-
-    if "Time" in sub_var:
-        pass
-    else:
-        sub_var.append("Time")
-    
-    main_var = list(filter(None, main_var))
-    sub_var = list(filter(None, sub_var))
-
-    progress["value"] = 2   # increment progressbar
-    progress.update() 
-
-
-
-    # Preparation of figure data
-    temp_main = pd.read_csv(main_file, index_col=None, header=0, usecols=main_var)
-    temp_main["Time"] = pd.to_datetime(temp_main["Time"], format = '%Y-%m-%d %H:%M:%S.%f')
-
-    progress["value"] = 4   # increment progressbar
-    progress.update() 
-
-    
-    if len(sub_var) == 1:
-        pass    
-    else:    
-        temp_sub = pd.read_csv(sub_file, index_col=None, header=0, usecols=sub_var)
-        temp_sub["Time"] = pd.to_datetime(temp_sub["Time"], format = '%Y-%m-%d %H:%M:%S.%f')
-
-        temp_main = pd.merge(temp_main, temp_sub, on= 'Time', how='outer').sort_values('Time')
-        temp_main.reset_index(inplace = True)
-
-        temp_main = temp_main.fillna(method = 'bfill') 
-
-    progress["value"] = 6   # increment progressbar
-    progress.update() 
-   
-
-
-    # Cleaning Operation log
-    key_word_REMOVE = ("Semi-", "DryRun")
-    temp_op = pd.read_csv(op_file, index_col=None, header=None, sep='\t', names=['RAW'])
-
-    for i in range(int(len(key_word_REMOVE))):
-        temp_op = temp_op[temp_op.RAW.str.contains(key_word_REMOVE[i]) == False]
-
-    # Clieaning Operation log
-    temp_op = temp_op[temp_op.RAW.str.contains(step_start) | temp_op.RAW.str.contains(step_end) == True].reset_index(drop=True)
-    temp_op["Time"], temp_op["PRO"] = temp_op.RAW.str.split(',').str[0], temp_op.RAW.str.split(',').str[1]
-    temp_op['Time'] = pd.to_datetime(temp_op['Time'], format = '%Y-%m-%d %H:%M:%S.%f')
-
-    progress["value"] = 8   # increment progressbar
-    progress.update()       # have to call update() in loop
-
-
-
-    # Remove duplicate order of Section
-    for i in range(int(len(temp_op.PRO)/2)):
-        try:
-            if temp_op.loc[i*2+1, ("PRO")].find(step_start) != -1:
-                temp_op = temp_op.drop(temp_op.index[i*2])
-                temp_op = temp_op.reset_index(drop=True) 
-            else:
-                if temp_op.loc[i*2, ("PRO")].find(step_end) != -1:
-                    temp_op = temp_op.drop(temp_op.index[i*2])
-                    temp_op = temp_op.reset_index(drop=True) 
-                else:
-                    continue
-        except KeyError as e:
-            continue
-
-    progress["value"] = 10   # increment progressbar
-    progress.update()       # have to call update() in loop
-
-
-
-    # Make CNT col and remove out of range
-    pro_num = progress["value"]
-    temp_main["CNT"] = -1
-
-    for i in range(int(len(temp_op.Time)/2)):
-
-        try:
-            [c, d] = [temp_main.index[temp_main.Time >= temp_op.loc[i*2, ('Time')]][0], temp_main.index[temp_main.Time < temp_op.loc[i*2+1, ('Time')]][-1]]
-            temp_main.loc[c:d, ('CNT')] = i
-        
-            progress["value"] = pro_num + ((i / int(len(temp_op.Time)/2)) * 3)   # increment progressbar
-            progress.update()       # have to call update() in loop
-        
-        except KeyError as e:
-            continue
-    
-        except IndexError as e:
-            continue        
-    
-    temp_main = temp_main[temp_main['CNT'] != -1]
-
-
-
-    # Initial figure data
-    temp_main_ini = temp_main[temp_main.CNT == int(temp_main.CNT.iloc[0])]
-    temp_main_ini = temp_main_ini.reset_index(drop=True)
-    
-    time_origin_1 = temp_main_ini.Time.iloc[0]
-    
-    temp_main_ini.Time = temp_main_ini.Time - temp_main_ini.Time.iloc[0] + time_origin_1
-
-    progress["value"] = 13   # increment progressbar
-    progress.update() 
-
-
-
-    # make figure structure
-    fig_dict = {
-        "data": [],
-        "layout": {},
-        "frames": []
-    }
-
-    frame_speed = 300
-    trans_speed = 150
-  
-
-
-    # Mske structure of figure
-    fig_dict["layout"]["xaxis"] = {"title": str(X_Axis)}
-    fig_dict["layout"]["yaxis"] = {"title": str(Y1_Axis), "type": Y1_log_OX}
-
-    if Y2_Axis in temp_main:
-        fig_dict["layout"]["yaxis2"] = {"title": str(Y2_Axis), "side": 'right', "overlaying": 'y', "anchor": 'x', "type": Y2_log_OX}
-    else:
-        pass
-    
-    fig_dict["layout"]["hovermode"] = "closest"
-    fig_dict["layout"]["updatemenus"] = [
-        {
-            "buttons": [
-                {
-                    "args": [None, {"frame": {"duration": frame_speed, "redraw": False},
-                                    "fromcurrent": True, 
-                                    "transition": {"duration": trans_speed,
-                                                "easing": "quadratic-in-out"}}],
-                    "label": "Play",
-                    "method": "animate"
-                },
-                {
-                    "args": [[None], {"frame": {"duration": frame_speed, "redraw": False},
-                                    "mode": "immediate",
-                                    "transition": {"duration": trans_speed}}],
-                    "label": "Pause",
-                    "method": "animate"
-                }
-            ],
-            "direction": "left",
-            "pad": {"r": 10, "t": 87},
-            "showactive": False,
-            "type": "buttons",
-            "x": 0.1,
-            "xanchor": "right",
-            "y": 0,
-            "yanchor": "top"
-        }
-    ]
-
-    sliders_dict = {
-        "active": 0,
-        "yanchor": "top",
-        "xanchor": "left",
-        "currentvalue": {
-            "font": {"size": 20},
-            "prefix": "Process time:",
-            "visible": True,
-            "xanchor": "right"
-        },
-        "transition": {"duration": trans_speed, "easing": "cubic-in-out"},
-        "pad": {"b": 10, "t": 50},
-        "len": 0.9,
-        "x": 0.1,
-        "y": 0,
-        "steps": []
-    }
-
-    if Y1_Axis in temp_main:   
-        data_dict = {
-            "x": list(temp_main_ini[X_Axis]),
-            "y": list(temp_main_ini[Y1_Axis]),
-            "mode": "lines",
-            # "type": Y1_log_OX,
-            "text": Y1_Axis,
-            "name": Y1_Axis
-        }
-        fig_dict["data"].append(data_dict)
-    else:
-        pass
-
-    if Y2_Axis in temp_main:    
-        data_dict = {   
-            "x": list(temp_main_ini[X_Axis]),
-            "y": list(temp_main_ini[Y2_Axis]),
-            "yaxis": "y2",
-            "mode": "lines",
-            # "type": Y2_log_OX,                   
-            "text": Y2_Axis,
-            "name": Y2_Axis
-        }
-        fig_dict["data"].append(data_dict)
-    else:
-        pass
-
-    progress["value"] = 15   # increment progressbar
-    progress.update() 
-
-
-
-    # Make figure strucuture of Animation
-    pro_num = progress["value"]
-    a = 0
-
-    # Make frames
-    for CNT in range(max(temp_main.CNT)+1):
-
-        try:
-            temp_main_cnt = temp_main[temp_main.CNT == CNT]
-            temp_main_cnt = temp_main_cnt.reset_index(drop=True)
+        #     # Create instance
+        #     self.win = tk.Tk()   
             
-            temp_main_cnt.Time = temp_main_cnt.Time - temp_main_cnt.Time.iloc[0] + time_origin_1
-        
-
-            frame = {"data": [], "name": str(CNT)}
-
-            if Y1_Axis in temp_main:
-                data_dict = {
-                    "x": list(temp_main_cnt[X_Axis]),
-                    "y": list(temp_main_cnt[Y1_Axis]),
-                    "mode": "lines",
-                    # "type": Y1_log_OX,
-                    "text": Y1_Axis,
-                    "name": Y1_Axis
-                }
-                frame["data"].append(data_dict)
-
-                fig_dict["frames"].append(frame)
-            else:
-                pass
+        #     # Add a title       
+        #     self.win.title(" GVK for Limited")  
             
+        #     # Create a Queue
+        #     self.gui_queue = Queue() 
+                
+        #     self.create_widgets()
 
-            if Y2_Axis in temp_main:
-                data_dict = {
-                    "x": list(temp_main_cnt[X_Axis]),
-                    "y": list(temp_main_cnt[Y2_Axis]),
-                    "mode": "lines",
-                    "yaxis": "y2",
-                    # "type": Y2_log_OX,
-                    "text": Y2_Axis,
-                    "name": Y2_Axis
-                }
-                frame["data"].append(data_dict)
+        # else:
+        #     self.win = tk.Tk()
+        #     self.win.title(" GVK")
+        #     self.win.geometry("200x100")
+        #     self.win.resizable(0,0)
 
-                fig_dict["frames"].append(frame)
-            else:
-                pass    
+        #     lbl = ttk.Label(self.win, text="  The license period\n  has expired.\n\n  You must remove IT!", font="NanumGothic 12")
+        #     lbl.grid(row=1, column=1)
+
+        #     self.win.mainloop()
+        #     # os._exit()
+
+        # Create instance
+        self.win = tk.Tk()   
+        
+        # Add a title       
+        self.win.title(" Graph Viewer for Mass log")  
+        
+        # Create a Queue
+        self.gui_queue = Queue() 
+            
+        self.create_widgets()
+
+    # update progressbar in callback loop
+    def run_progressbar_0(self):
+
+        self.Timeseries_scrol.insert(tk.INSERT, "Please wait to process... Human !!" + '\n')
+        self.Timeseries_scrol.see("end")  
+
+        try:
+        # plot_Timeseries(main_list, sub_list, main_file, sub_file, Y1_Axis, Y2_Axis, Y1_log_OX, Y2_log_OX, main_path, sub_path, progress)
+            plot_Timeseries(self.a, 
+            self.Timeseries_main_fileEntry.get(), self.Timeseries_sub_fileEntry.get(), 
+            self.number_1_chosen.get(), self.number_2_chosen.get(), 
+            self.number_7_chosen.get(), self.number_8_chosen.get(), 
+            self.number_9_chosen.get(),
+            self.chVar_0.get(), self.chVar_1.get(), 
+            self.progress_bar_0)
+
+            self.progress_bar_0["value"] = 0       # reset/clear progressbar  
+
+            self.Timeseries_scrol.insert(tk.INSERT, "Process is END. Human !!" + '\n')
+            self.Timeseries_scrol.see("end")
+
+        except:
+            self.Timeseries_scrol.insert(tk.INSERT, "Setting miss, Retry Human !!" + '\n')
+            self.Timeseries_scrol.see("end")  
 
 
-            slider_step = {"args": [
-                [CNT],
-                {"frame": {"duration": frame_speed, "redraw": False},
-                "mode": "immediate",
-                "transition": {"duration": trans_speed}}
-            ],
-                "label": str(CNT),
-                "method": "animate"}
-            sliders_dict["steps"].append(slider_step)
+
+    def run_progressbar_1(self):
+
+        self.Unit_scrol.insert(tk.INSERT, "Please wait to process... Human !!" + '\n')
+        self.Unit_scrol.see("end")  
+        
+        try:
+            # plot_Unit(main_list, op_file, main_file, step_start, step_end, X_Axis, Y1_Axis, Y2_Axis, Y1_log_OX, Y2_log_OX, sum_CSV, save_path, progress)
+            plot_Unit(self.a,
+            self.Unit_op_fileEntry.get(), self.Unit_main_fileEntry.get(), self.Unit_sub_fileEntry.get(), 
+            self.step_start_chosen.get(), self.step_end_chosen.get(),
+            self.number_3_chosen.get(), self.number_4_chosen.get(), self.number_5_chosen.get(), 
+            self.chVar_3.get(), self.chVar_4.get(), self.chVar_5.get(), 
+            self.Unit_save_file.get(), self.progress_bar_1)
+
+            self.progress_bar_1["value"] = 0       # reset/clear progressbar  
+
+            self.Unit_scrol.insert(tk.INSERT, "Process is END. Human !!" + '\n')
+            self.Unit_scrol.see("end")  
+
+        except:
+            self.Unit_scrol.insert(tk.INSERT, "Setting miss, Retry Human !!" + '\n')
+            self.Unit_scrol.see("end")  
+
+
+    def usingGlobal(self):
+        global GLOBAL_CONST
+        GLOBAL_CONST = 777
+        
+                            
+    # Exit GUI cleanly
+    def _quit(self):
+        self.win.quit()
+        self.win.destroy()
+        exit() 
+                  
+    #####################################################################################       
+    def create_widgets(self):    
+        tabControl = ttk.Notebook(self.win)     # Create Tab Control
+        
+        tab1 = ttk.Frame(tabControl)            # Create a tab 
+        tabControl.add(tab1, text=' Time series graph ')      # Add the tab
+
+        tab2 = ttk.Frame(tabControl)            # Add a second tab
+        tabControl.add(tab2, text=' Unit step graph ')      # Make second tab visible
+        
+        tabControl.pack(expand=1, fill="both")  # Pack to make visible
+        
+        
+        #=====================================================================================
+        # Create Manage Files Frame ------------------------------------------------
+        mngFilesFrame = ttk.LabelFrame(tab1, text=' Manage Files ')
+        mngFilesFrame.grid(column=0, row=0, sticky='WE', padx=10, pady=5)
+
+        # Button Callback
+        def Timeseries_main_getFileName():
+            fDir  = path.dirname(__file__)
+            fName = fd.askopenfilename(parent=self.win, initialdir=fDir)
+            # self.Timeseries_main_fileEntry.config(state='enabled')
+            self.Timeseries_main_fileEntry.delete(0, tk.END)
+            self.Timeseries_main_fileEntry.insert(0, fName)
+            # print(self.Timeseries_main_fileEntry.get())
+            self.Timeseries_scrol.insert(tk.INSERT, "Main: " + str(fName[int(len(fDir)+1):]) + '\n') 
+            self.Timeseries_scrol.see("end")
+        
+    
+        def Timeseries_sub_getFileName():
+            fDir  = path.dirname(__file__)
+            fName = fd.askopenfilename(parent=self.win, initialdir=fDir)
+            # self.Timeseries_sub_fileEntry.config(state='enabled')
+            self.Timeseries_sub_fileEntry.delete(0, tk.END)
+            self.Timeseries_sub_fileEntry.insert(0, fName)
+            # print(self.Timeseries_sub_fileEntry.get())
+            self.Timeseries_scrol.insert(tk.INSERT, "Sub : " + str(fName[int(len(fDir)+1):]) + '\n') 
+            self.Timeseries_scrol.see("end")
+
                         
+        # Add Widgets to Manage Files Frame
+        lb = ttk.Button(mngFilesFrame, text=" Main LOG..", command=Timeseries_main_getFileName)     
+        lb.grid(column=0, row=0, sticky='WE') 
+        
+        #-----------------------------------------------------        
+        self.Timeseries_main_file = tk.StringVar()
+        self.entryLen = 35
+        self.Timeseries_main_fileEntry = tk.Entry(mngFilesFrame, width=self.entryLen, textvariable=self.Timeseries_main_file)
+        self.Timeseries_main_fileEntry.grid(column=1, row=0, sticky='WE')
+        
+        #-----------------------------------------------------
+        self.Timeseries_sub_file = tk.StringVar()
+        self.Timeseries_sub_fileEntry = tk.Entry(mngFilesFrame, width=self.entryLen, textvariable=self.Timeseries_sub_file)
+        self.Timeseries_sub_fileEntry.grid(column=1, row=1, sticky='WE')  
+        
+        cb = ttk.Button(mngFilesFrame, text=" Sub LOG...", command=Timeseries_sub_getFileName)    
+        cb.grid(column=0, row=1, sticky='WE') 
+                
+        # Add some space around each label
+        for child in mngFilesFrame.winfo_children(): 
+            child.grid_configure(padx=5, pady=5)
 
-        except KeyError as e:
-            continue
+
+        # We are creating a container frame to hold all other widgets
+        selScaleType = ttk.LabelFrame(tab1, text=' Select scale type ')
+        selScaleType.grid(column=0, row=1, padx=10, pady=5, sticky='WE')
+
+        def isChecked_0():
+            if self.chVar_0.get() == 1:
+                self.Timeseries_scrol.insert(tk.INSERT, "Y1 Log scaled" + '\n')
+                self.Timeseries_scrol.see("end")
+            else:
+                self.Timeseries_scrol.insert(tk.INSERT, "Y1 Normal scaled" + '\n')
+                self.Timeseries_scrol.see("end")
+
+
+        def isChecked_1():
+            if self.chVar_1.get() == 1:
+                self.Timeseries_scrol.insert(tk.INSERT, "Y2 Log scaled" + '\n')
+                self.Timeseries_scrol.see("end")
+            else:
+                self.Timeseries_scrol.insert(tk.INSERT, "Y2 Normal scaled" + '\n')
+                self.Timeseries_scrol.see("end")
+
+
+        # Creating three checkbuttons
+        self.chVar_0 = tk.IntVar()
+        check0 = tk.Checkbutton(selScaleType, text=" Y1 Log scale ", onvalue=1, offvalue=0, variable=self.chVar_0, command=isChecked_0)
+        check0.deselect()
+        check0.grid(column=0, row=1, sticky='WE') 
+
+
+        self.chVar_1 = tk.IntVar()
+        check1 = tk.Checkbutton(selScaleType, text=" Y2 Log scale ", onvalue=1, offvalue=0, variable=self.chVar_1, command=isChecked_1)
+        check1.deselect()
+        check1.grid(column=1, row=1, sticky='WE') 
+
+
+        # Add some space around each label
+        for child in selScaleType.winfo_children(): 
+            child.grid_configure(padx=42, pady=5)
+
+
+        # We are creating a container frame to hold all other widgets
+        setAxisData = ttk.LabelFrame(tab1, text=' Select Axis data  ')
+        setAxisData.grid(column=0, row=2, padx=10, pady=5, sticky='WE')
+
+
+        # Combobox callback 
+        def comboCallback_0():
+            self.a = 0
+            self.b = 0
+            if int(path.isfile(self.Timeseries_main_file.get())) + int(path.isfile(self.Timeseries_sub_file.get())) == 0:
+                self.Timeseries_scrol.insert(tk.INSERT, "Plz select your file." + '\n')
+                self.Timeseries_scrol.see("end")
+            elif int(path.isfile(self.Timeseries_main_file.get())) + int(path.isfile(self.Timeseries_sub_file.get())) == 2:
+                self.a = list(pd.read_csv(self.Timeseries_main_file.get(), header=None, nrows=1).iloc[0][1:])
+                self.b = list(pd.read_csv(self.Timeseries_sub_file.get(), header=None, nrows=1).iloc[0][1:])
+                if len(self.a) == 0 & len(self.b) == 0:
+                    self.Timeseries_scrol.insert(tk.INSERT, "These are wrong file" + '\n')
+                    self.Timeseries_scrol.see("end")
+                else:
+                    [self.number_1_chosen['values'], self.number_2_chosen['values'],
+                    self.number_7_chosen['values'], self.number_8_chosen['values'],
+                    self.number_9_chosen['values']] = [self.a + self.b, self.a + self.b, self.a + self.b, self.a + self.b, self.a + self.b]
+                    self.Timeseries_scrol.insert(tk.INSERT, "You are selected MAIN & SUB" + '\n')
+                    self.Timeseries_scrol.see("end")    
+            elif int(path.isfile(self.Timeseries_main_file.get())) == 0:
+                self.b = list(pd.read_csv(self.Timeseries_sub_file.get(), header=None, nrows=1).iloc[0][1:])
+                if len(self.b) == 1:
+                    self.Timeseries_scrol.insert(tk.INSERT, "SUB is wrong file" + '\n')
+                    self.Timeseries_scrol.see("end")
+                else:
+                    [self.number_1_chosen['values'], self.number_2_chosen['values'],
+                    self.number_7_chosen['values'], self.number_8_chosen['values'],
+                    self.number_9_chosen['values']] = [self.b, self.b, self.b, self.b, self.b]
+                    self.Timeseries_scrol.insert(tk.INSERT, "You are only selected SUB" + '\n')
+                    self.Timeseries_scrol.see("end")
+            else:
+                self.a = list(pd.read_csv(self.Timeseries_main_file.get(), header=None, nrows=1).iloc[0][1:])
+                if len(self.a) == 1:
+                    self.Timeseries_scrol.insert(tk.INSERT, "MAIN is wrong file" + '\n')
+                    self.Timeseries_scrol.see("end")
+                else:
+                    [self.number_1_chosen['values'], self.number_2_chosen['values'],
+                    self.number_7_chosen['values'], self.number_8_chosen['values'],
+                    self.number_9_chosen['values']] = [self.a, self.a, self.a, self.a, self.a]
+                    self.Timeseries_scrol.insert(tk.INSERT, "You are only selected MAIN" + '\n')
+                    self.Timeseries_scrol.see("end")
+
+
+
+        # XY Axis setting
+        # def callbackFunc_0(event):
+        #     self.scrol.insert(tk.INSERT, ' X Axis is ' + self.number_0_chosen.get() + '\n')
+
+        def callbackFunc_1(event):
+            self.Timeseries_scrol.insert(tk.INSERT, 'Y1 Axis is ' + self.number_1_chosen.get() + '\n')
+            self.Timeseries_scrol.see("end")
+
+        def callbackFunc_2(event):
+            self.Timeseries_scrol.insert(tk.INSERT, 'Y2_1 Axis is ' + self.number_2_chosen.get() + '\n')
+            self.Timeseries_scrol.see("end")
+
+        def callbackFunc_7(event):
+            self.Timeseries_scrol.insert(tk.INSERT, 'Y2_2 Axis is ' + self.number_7_chosen.get() + '\n')
+            self.Timeseries_scrol.see("end")
+
+        def callbackFunc_8(event):
+            self.Timeseries_scrol.insert(tk.INSERT, 'Y2_3 Axis is ' + self.number_8_chosen.get() + '\n')
+            self.Timeseries_scrol.see("end")
+
+        def callbackFunc_9(event):
+            self.Timeseries_scrol.insert(tk.INSERT, 'Y2_4 Axis is ' + self.number_9_chosen.get() + '\n')
+            self.Timeseries_scrol.see("end")
+
+        # ttk.Label(setAxisData, text="  X Axis : ").grid(column=0, row=5, sticky='WE')
+        # number_0 = tk.StringVar()
+        # number_0_chosen = ttk.Combobox(setAxisData, width=35, textvariable=number_0, state='readonly', postcommand=comboCallback_0)
+        # number_0_chosen.grid(column=1, row=5)
+        # number_0_chosen.bind("<<ComboboxSelected>>", callbackFunc_0)
+
+        ttk.Label(setAxisData, text=" Y1 Axis : ").grid(column=0, row=6, sticky='WE')
+        self.number_1 = tk.StringVar()
+        self.number_1_chosen = ttk.Combobox(setAxisData, width=35, textvariable=self.number_1, state='readonly', postcommand=comboCallback_0)
+        self.number_1_chosen.grid(column=1, row=6)
+        self.number_1_chosen.bind("<<ComboboxSelected>>", callbackFunc_1)
+
+        ttk.Label(setAxisData, text=" Y2_1 Axis : ").grid(column=0, row=7, sticky='WE')
+        self.number_2 = tk.StringVar()
+        self.number_2_chosen = ttk.Combobox(setAxisData, width=35, textvariable=self.number_2, state='readonly', postcommand=comboCallback_0)
+        self.number_2_chosen.grid(column=1, row=7)
+        self.number_2_chosen.bind("<<ComboboxSelected>>", callbackFunc_2)
+
+        ttk.Label(setAxisData, text=" Y2_2 Axis : ").grid(column=0, row=8, sticky='WE')
+        self.number_7 = tk.StringVar()
+        self.number_7_chosen = ttk.Combobox(setAxisData, width=35, textvariable=self.number_7, state='readonly', postcommand=comboCallback_0)
+        self.number_7_chosen.grid(column=1, row=8)
+        self.number_7_chosen.bind("<<ComboboxSelected>>", callbackFunc_7)
+
+        ttk.Label(setAxisData, text=" Y2_3 Axis : ").grid(column=0, row=9, sticky='WE')
+        self.number_8 = tk.StringVar()
+        self.number_8_chosen = ttk.Combobox(setAxisData, width=35, textvariable=self.number_8, state='readonly', postcommand=comboCallback_0)
+        self.number_8_chosen.grid(column=1, row=9)
+        self.number_8_chosen.bind("<<ComboboxSelected>>", callbackFunc_8)
+
+        ttk.Label(setAxisData, text=" Y2_4 Axis : ").grid(column=0, row=10, sticky='WE')
+        self.number_9 = tk.StringVar()
+        self.number_9_chosen = ttk.Combobox(setAxisData, width=35, textvariable=self.number_9, state='readonly', postcommand=comboCallback_0)
+        self.number_9_chosen.grid(column=1, row=10)
+        self.number_9_chosen.bind("<<ComboboxSelected>>", callbackFunc_9)
+
+
+
+        # Add some space around each label
+        for child in setAxisData.winfo_children(): 
+            child.grid_configure(padx=10, pady=5)
+
+
+        # Add a Progressbar to Tab 1
+        Timeseries_progbar = ttk.LabelFrame(tab1, text=' Progress bar ')
+        Timeseries_progbar.grid(column=0, row=3, padx=5, pady=5)
+        
+        # Add Buttons for Progressbar commands
+        ttk.Button(Timeseries_progbar, text=" RUN ", command=self.run_progressbar_0).grid(column=0, row=0, sticky='WE')   
+
+        self.progress_bar_0 = ttk.Progressbar(Timeseries_progbar, orient='horizontal', length=290, mode='determinate')
+        self.progress_bar_0.grid(column=1, row=0, pady=2, sticky='WE')
+
+        # Add some space around each label
+        for child in Timeseries_progbar.winfo_children(): 
+            child.grid_configure(padx=5, pady=5)
+
+
+
+        # We are creating a container frame to hold all other widgets
+        scrolTEXTbox = ttk.LabelFrame(tab1, text=' Message box ')
+        scrolTEXTbox.grid(column=0, row=5, padx=10, pady=5, sticky='WE')
+
+        # Using a scrolled Text control    
+        scrol_w = 52; scrol_h = 8                 # increase sizes
+        self.Timeseries_scrol = scrolledtext.ScrolledText(scrolTEXTbox, width=scrol_w, height=scrol_h, wrap=tk.WORD)
+        self.Timeseries_scrol.grid(column=0, row=0, sticky='WE', columnspan=3)  
+
+
+        for child in scrolTEXTbox.winfo_children():  
+            child.grid_configure(padx=5, pady=5) 
+
+        
+        # Add a reset
+        Reset_bt = ttk.LabelFrame(tab1, text=' Reset setting ')
+        Reset_bt.grid(column=0, row=4, padx=10, pady=5, sticky='WE')
+        
+        def reset_all():
+            self.step_start_chosen.set('')
+            self.step_end_chosen.set('')
+            self.number_3_chosen.set('')
+            self.number_4_chosen.set('')
+            self.number_5_chosen.set('')
+            self.chVar_3.set(0)
+            self.chVar_4.set(0)
+            self.chVar_5.set(0)
+            self.Unit_save_file.set('')
+            self.Unit_main_file.set('')
+            self.Unit_op_file.set('')
+            self.number_1_chosen.set('')
+            self.number_2_chosen.set('')
+            self.number_7_chosen.set('')
+            self.number_8_chosen.set('')
+            self.number_9_chosen.set('')            
+            self.chVar_0.set(0)
+            self.chVar_1.set(0)
+            self.Timeseries_main_file.set('')
+            self.Timeseries_sub_file.set('')
+
+        def reset_axis():
+            self.number_3_chosen.set('')
+            self.number_4_chosen.set('')
+            self.number_5_chosen.set('')
+            self.chVar_3.set(0)
+            self.chVar_4.set(0)
+            self.chVar_5.set(0)
+            self.number_1_chosen.set('')
+            self.number_2_chosen.set('')
+            self.number_7_chosen.set('')
+            self.number_8_chosen.set('')
+            self.number_9_chosen.set('')              
+            self.chVar_0.set(0)
+            self.chVar_1.set(0)
+
+
+
+        # Add Buttons for Progressbar commands
+        ttk.Button(Reset_bt, text=" Reset all", command=reset_all).grid(column=0, row=0, sticky='WE')
+
+        ttk.Button(Reset_bt, text=" Reset axis", command=reset_axis).grid(column=1, row=0, sticky='WE')
+
+        # Add some space around each label
+        for child in Reset_bt.winfo_children(): 
+            child.grid_configure(padx=5, pady=5)
+
+
+
+        #=====================================================================================
+        # tab2             
+        # Create Manage Files Frame ------------------------------------------------
+        mngFilesFrame = ttk.LabelFrame(tab2, text=' Manage Files ')
+        mngFilesFrame.grid(column=0, row=0, sticky='WE', padx=10, pady=5)
+
+        # Button Callback
+        def Unit_op_getFileName():
+            fDir  = path.dirname(__file__)
+            fName = fd.askopenfilename(parent=self.win, initialdir=fDir)
+            # self.Timeseries_main_fileEntry.config(state='enabled')
+            self.Unit_op_fileEntry.delete(0, tk.END)
+            self.Unit_op_fileEntry.insert(0, fName)
+            self.Unit_scrol.insert(tk.INSERT, "Operation: " + str(fName[int(len(fDir)+1):]) + '\n') 
+            self.Unit_scrol.see("end")
+        
     
-        except IndexError as e:
-            continue
-
-        fig_dict["layout"]["sliders"] = [sliders_dict]
-
-        fig = go.Figure(fig_dict)
-
-        a += 1
-
-        progress["value"] = pro_num + (a / int(int(len(temp_op.Time)/2)) * 90)   # increment progressbar
-        progress.update()       # have to call update() in loop
-
-
-    fig.update_layout(title= " Monitoring @MURI") 
-    fig.show()
-
-
-
-    if sum_CSV == 1:
-        temp_col = ["Time"]
-
-        if Y1_Axis in temp_main:
-            temp_col += [str(Y1_Axis)+"_Max", str(Y1_Axis)+"_Mean", str(Y1_Axis)+"_Min"]
-        else:
-            pass
-
-        if Y2_Axis in temp_main:
-            temp_col += [str(Y2_Axis)+"_Max", str(Y2_Axis)+"_Mean", str(Y2_Axis)+"_Min"]
-        else:
-            pass
+        def Unit_main_getFileName():
+            fDir  = path.dirname(__file__)
+            fName = fd.askopenfilename(parent=self.win, initialdir=fDir)
+            # self.Timeseries_sub_fileEntry.config(state='enabled')
+            self.Unit_main_fileEntry.delete(0, tk.END)
+            self.Unit_main_fileEntry.insert(0, fName)
+            self.Unit_scrol.insert(tk.INSERT, "Main : " + str(fName[int(len(fDir)+1):]) + '\n') 
+            self.Unit_scrol.see("end")
         
-        temp = pd.DataFrame(index=range(0,int(max(temp_main.CNT)+1)), columns=temp_col)
         
-        if "Time" in variable:
-            variable.remove("Time")
-            variable = list(filter(None, variable))
-        else:
-            pass
+        def Unit_sub_getFileName():
+            fDir  = path.dirname(__file__)
+            fName = fd.askopenfilename(parent=self.win, initialdir=fDir)
+            # self.Timeseries_sub_fileEntry.config(state='enabled')
+            self.Unit_sub_fileEntry.delete(0, tk.END)
+            self.Unit_sub_fileEntry.insert(0, fName)
+            self.Unit_scrol.insert(tk.INSERT, "Sub : " + str(fName[int(len(fDir)+1):]) + '\n') 
+            self.Unit_scrol.see("end")        
+
+
+        def getFolderName2():
+            fDir2 = fd.askdirectory()
+            # self.Unit_save_fileEntry.config(state='enabled')
+            self.Unit_save_fileEntry.delete(0, tk.END)
+            self.Unit_save_fileEntry.insert(0, fDir2)
+            
+            if len(fDir2) > self.entryLen:
+                self.Unit_save_fileEntry.config(width=len(fDir2) + 3)
+
+            self.Unit_scrol.insert(tk.INSERT, "Save path : " + str(fDir2) + '\n') 
+            self.Unit_scrol.see("end")
+
+                        
+        # Add Widgets to Manage Files Frame
+        lb = ttk.Button(mngFilesFrame, text=" Operarion ", command=Unit_op_getFileName)     
+        lb.grid(column=0, row=0, sticky='WE') 
+        
+        #-----------------------------------------------------        
+        self.Unit_op_file = tk.StringVar()
+        self.entryLen = 35
+        self.Unit_op_fileEntry = tk.Entry(mngFilesFrame, width=self.entryLen, textvariable=self.Unit_op_file)
+        self.Unit_op_fileEntry.grid(column=1, row=0, sticky='WE')
+        
+        #-----------------------------------------------------
+        self.Unit_main_file = tk.StringVar()
+        self.Unit_main_fileEntry = tk.Entry(mngFilesFrame, width=self.entryLen, textvariable=self.Unit_main_file)
+        self.Unit_main_fileEntry.grid(column=1, row=1, sticky='WE')  
+
+        self.Unit_sub_file = tk.StringVar()
+        self.Unit_sub_fileEntry = tk.Entry(mngFilesFrame, width=self.entryLen, textvariable=self.Unit_sub_file)
+        self.Unit_sub_fileEntry.grid(column=1, row=2, sticky='WE')          
+        
+        self.Unit_save_file = tk.StringVar()
+        self.Unit_save_fileEntry = tk.Entry(mngFilesFrame, width=self.entryLen, textvariable=self.Unit_save_file)
+        self.Unit_save_fileEntry.grid(column=1, row=3, sticky='WE')  
+
+        cb = ttk.Button(mngFilesFrame, text=" Main LOG..", command=Unit_main_getFileName)    
+        cb.grid(column=0, row=1, sticky='WE')
+
+        db = ttk.Button(mngFilesFrame, text=" Sub LOG..", command=Unit_sub_getFileName)    
+        db.grid(column=0, row=2, sticky='WE') 
+
+        sb = ttk.Button(mngFilesFrame, text="Save path..", command=getFolderName2)     
+        sb.grid(column=0, row=3, sticky=tk.W) 
+
+        # Add some space around each label
+        for child in mngFilesFrame.winfo_children(): 
+            child.grid_configure(padx=5, pady=5)
+
+
+
+        # We are creating a container frame to hold all other widgets
+        selScaleType = ttk.LabelFrame(tab2, text=' Select scale type ')
+        selScaleType.grid(column=0, row=1, padx=10, pady=5, sticky='WE')
+
+        def isChecked_3():
+            if self.chVar_3.get() == 1:
+                self.Unit_scrol.insert(tk.INSERT, "Y1 Log scaled" + '\n')
+                self.Unit_scrol.see("end")
+            else:
+                self.Unit_scrol.insert(tk.INSERT, "Y1 Normal scaled" + '\n')
+                self.Unit_scrol.see("end")
+
+
+        def isChecked_4():
+            if self.chVar_4.get() == 1:
+                self.Unit_scrol.insert(tk.INSERT, "Y2 Log scaled" + '\n')
+                self.Unit_scrol.see("end")
+            else:
+                self.Unit_scrol.insert(tk.INSERT, "Y2 Normal scaled" + '\n')
+                self.Unit_scrol.see("end")
+
+
+        def isChecked_5():
+            if self.chVar_5.get() == 1:
+                self.Unit_scrol.insert(tk.INSERT, "Making Summary CSV" + '\n')
+                self.Unit_scrol.see("end")
+            else:
+                self.Unit_scrol.insert(tk.INSERT, "Cancel Summary CSV" + '\n')
+                self.Unit_scrol.see("end")
+
+        # Creating three checkbuttons
+        self.chVar_3 = tk.IntVar()
+        check3 = tk.Checkbutton(selScaleType, text=" Y1 Log scale ", onvalue=1, offvalue=0, variable=self.chVar_3, command=isChecked_3)
+        check3.deselect()
+        check3.grid(column=0, row=1, sticky='WE') 
+
+        self.chVar_4 = tk.IntVar()
+        check4 = tk.Checkbutton(selScaleType, text=" Y2 Log scale ", onvalue=1, offvalue=0, variable=self.chVar_4, command=isChecked_4)
+        check4.deselect()
+        check4.grid(column=1, row=1, sticky='WE') 
+
+        self.chVar_5 = tk.IntVar()
+        check5 = tk.Checkbutton(selScaleType, text=" Summary CVS ", onvalue=1, offvalue=0, variable=self.chVar_5, command=isChecked_5)
+        check5.deselect()
+        check5.grid(column=2, row=1, sticky='WE') 
+
+
+        # Add some space around each label
+        for child in selScaleType.winfo_children(): 
+            child.grid_configure(padx=5, pady=5)
+
+
+                        
+        # We are creating a container frame to hold all other widgets
+        selSTEPorder = ttk.LabelFrame(tab2, text=' Step start to end  ')
+        selSTEPorder.grid(column=0, row=2, padx=10, pady=5, sticky='WE')
+
+        def callbackFunc_3(event):
+            self.Unit_scrol.insert(tk.INSERT, self.step_start_chosen.get() + '\n')
+            self.Unit_scrol.see("end")
+
+        def callbackFunc_4(event):
+            self.Unit_scrol.insert(tk.INSERT, self.step_end_chosen.get() + '\n')
+            self.Unit_scrol.see("end")
+
+
+        # Changing our Label
+        ttk.Label(selSTEPorder, text="  START : ").grid(column=0, row=2, sticky='WE')
+        self.step_start = tk.StringVar()
+        self.step_start_chosen = ttk.Combobox(selSTEPorder, width=35, textvariable=self.step_start, state='readonly')
+        self.step_start_chosen['values'] = ("Something")
+        self.step_start_chosen.grid(column=1, row=2)
+        self.step_start_chosen.current(0)
+        self.step_start_chosen.bind("<<ComboboxSelected>>", callbackFunc_3)
+
+
+        ttk.Label(selSTEPorder, text="  END   : ").grid(column=0, row=3, sticky='WE')
+        self.step_end = tk.StringVar()
+        self.step_end_chosen = ttk.Combobox(selSTEPorder, width=35, textvariable=self.step_end, state='readonly')
+        self.step_end_chosen['values'] = ("Something")
+        self.step_end_chosen.grid(column=1, row=3)
+        self.step_end_chosen.current(0)
+        self.step_end_chosen.bind("<<ComboboxSelected>>", callbackFunc_4)
+
+        # Add some space around each label
+        for child in selSTEPorder.winfo_children(): 
+            child.grid_configure(padx=5, pady=5)
+
+ 
+ 
+        # We are creating a container frame to hold all other widgets
+        setAxisData = ttk.LabelFrame(tab2, text=' Select Axis data  ')
+        setAxisData.grid(column=0, row=3, padx=10, pady=5, sticky='WE')
+
+
+        def comboCallback_1():
+            self.a = 0
+            self.b = 0
+            if int(path.isfile(self.Unit_main_file.get())) + int(path.isfile(self.Unit_sub_file.get())) == 0:
+                self.Unit_scrol.insert(tk.INSERT, "Plz select your file." + '\n')
+                self.Unit_scrol.see("end")
+            elif int(path.isfile(self.Unit_main_file.get())) + int(path.isfile(self.Unit_sub_file.get())) == 2:
+                self.a = list(pd.read_csv(self.Unit_main_file.get(), header=None, nrows=1).iloc[0][0:])
+                self.b = list(pd.read_csv(self.Unit_sub_file.get(), header=None, nrows=1).iloc[0][1:])
+                if len(self.a) == 0 & len(self.b) == 0:
+                    self.Unit_scrol.insert(tk.INSERT, "These are wrong file" + '\n')
+                    self.Unit_scrol.see("end")
+                else:
+                    [self.number_3_chosen['values'], self.number_4_chosen['values'], self.number_5_chosen['values']] = [self.a + self.b, self.a + self.b, self.a + self.b]
+                    self.Unit_scrol.insert(tk.INSERT, "You are selected MAIN & SUB" + '\n')
+                    self.Unit_scrol.see("end")    
+            elif int(path.isfile(self.Unit_main_file.get())) == 0:
+                self.b = list(pd.read_csv(self.Unit_sub_file.get(), header=None, nrows=1).iloc[0][1:])
+                if len(self.b) == 1:
+                    self.Unit_scrol.insert(tk.INSERT, "SUB is wrong file" + '\n')
+                    self.Unit_scrol.see("end")
+                else:
+                    [self.number_3_chosen['values'], self.number_4_chosen['values'], self.number_5_chosen['values']] = [self.b, self.b, self.b]
+                    self.Unit_scrol.insert(tk.INSERT, "You are only selected SUB" + '\n')
+                    self.Unit_scrol.see("end")
+            else:
+                self.a = list(pd.read_csv(self.Unit_main_file.get(), header=None, nrows=1).iloc[0][0:])
+                if len(self.a) == 1:
+                    self.Unit_scrol.insert(tk.INSERT, "MAIN is wrong file" + '\n')
+                    self.Unit_scrol.see("end")
+                else:
+                    [self.number_3_chosen['values'], self.number_4_chosen['values'], self.number_5_chosen['values']] = [self.a, self.a, self.a]
+                    self.Unit_scrol.insert(tk.INSERT, "You are only selected MAIN" + '\n')
+                    self.Unit_scrol.see("end")
 
         
-        print('NG1')
+        # XY Axis setting
+        def callbackFunc_5(event):
+            self.Unit_scrol.insert(tk.INSERT, ' X Axis is ' + self.number_3_chosen.get() + '\n')
+            self.Unit_scrol.see("end")
 
-
-        for CNT in range(max(temp_main.CNT)+1):
-
-            try:
-                temp_main_cnt = temp_main[temp_main.CNT == CNT]
-                temp_main_cnt = temp_main_cnt.reset_index(drop=True)
-
-                print('NG2')
-
-                temp.loc[CNT, ('Time')] = temp_main_cnt["Time"][0]
-         
-                print('NG3')
-
-                print(variable)
-
-                for i in range(len(variable)):
-                    
-                    print('NG4')
-
-                    temp.loc[CNT, (str(variable[i])+"_Max")] = temp_main_cnt[variable[i]].max()
-                    temp.loc[CNT, (str(variable[i])+"_Min")] = temp_main_cnt[variable[i]].min()
-                    temp.loc[CNT, (str(variable[i])+"_Mean")] = temp_main_cnt[variable[i]].mean()                              
-
-            except KeyError as e:
-                continue
+        def callbackFunc_6(event):
+            self.Unit_scrol.insert(tk.INSERT, 'Y1 Axis is ' + self.number_4_chosen.get() + '\n')
+            self.Unit_scrol.see("end")
         
-            except IndexError as e:
-                continue
-        
-        temp.to_csv(save_path + "/summary.csv")
+        def callbackFunc_7(event):
+            self.Unit_scrol.insert(tk.INSERT, 'Y2 Axis is ' + self.number_5_chosen.get() + '\n')
+            self.Unit_scrol.see("end")
 
-    else:
-        return
+
+        ttk.Label(setAxisData, text="  X Axis : ").grid(column=0, row=5, sticky='WE')
+        self.number_3 = tk.StringVar()
+        self.number_3_chosen = ttk.Combobox(setAxisData, width=35, textvariable=self.number_3, state='readonly', postcommand=comboCallback_1)
+        self.number_3_chosen.grid(column=1, row=5)
+        self.number_3_chosen.bind("<<ComboboxSelected>>", callbackFunc_5)
+
+        ttk.Label(setAxisData, text=" Y1 Axis : ").grid(column=0, row=6, sticky='WE')
+        self.number_4 = tk.StringVar()
+        self.number_4_chosen = ttk.Combobox(setAxisData, width=35, textvariable=self.number_4, state='readonly', postcommand=comboCallback_1)
+        self.number_4_chosen.grid(column=1, row=6)
+        self.number_4_chosen.bind("<<ComboboxSelected>>", callbackFunc_6)
+
+        ttk.Label(setAxisData, text=" Y2 Axis : ").grid(column=0, row=7, sticky='WE')
+        self.number_5 = tk.StringVar()
+        self.number_5_chosen = ttk.Combobox(setAxisData, width=35, textvariable=self.number_5, state='readonly', postcommand=comboCallback_1)
+        self.number_5_chosen.grid(column=1, row=7)
+        self.number_5_chosen.bind("<<ComboboxSelected>>", callbackFunc_7)
+
+
+        # Add some space around each label
+        for child in setAxisData.winfo_children(): 
+            child.grid_configure(padx=10, pady=5)
+
+
+
+        # Add a Progressbar to Tab 2
+        Unit_progbar = ttk.LabelFrame(tab2, text=' Progress bar ')
+        Unit_progbar.grid(column=0, row=4, padx=5, pady=5)
+        
+        # Add Buttons for Progressbar commands
+        ttk.Button(Unit_progbar, text=" RUN ", command=self.run_progressbar_1).grid(column=0, row=0, sticky='WE')   
+
+        self.progress_bar_1 = ttk.Progressbar(Unit_progbar, orient='horizontal', length=290, mode='determinate')
+        self.progress_bar_1.grid(column=1, row=0, pady=2, sticky='WE')
+
+
+        # Add some space around each label
+        for child in Unit_progbar.winfo_children(): 
+            child.grid_configure(padx=5, pady=5)
+
+
+
+        # We are creating a container frame to hold all other widgets
+        scrolTEXTbox = ttk.LabelFrame(tab2, text=' Message box ')
+        scrolTEXTbox.grid(column=0, row=5, padx=10, pady=5, sticky='WE')
+
+        # Using a scrolled Text control    
+        scrol_w = 52; scrol_h = 5                 # increase sizes
+        self.Unit_scrol = scrolledtext.ScrolledText(scrolTEXTbox, width=scrol_w, height=scrol_h, wrap=tk.WORD)
+        self.Unit_scrol.grid(column=0, row=0, sticky='WE', columnspan=3)  
+
+
+        for child in scrolTEXTbox.winfo_children():  
+            child.grid_configure(padx=5, pady=5) 
+
+
+
+
+        # Creating a Menu Bar ==========================================================            
+        menu_bar = Menu(self.win)
+        self.win.config(menu=menu_bar)
+        
+        # Add menu items
+        file_menu = Menu(menu_bar, tearoff=0)
+        file_menu.add_command(label="Blank")
+        file_menu.add_separator()
+        file_menu.add_command(label="Exit", command=self._quit)
+        menu_bar.add_cascade(label="File", menu=file_menu)
+        
+        # Display a Message Box
+        def _msgBox():
+            msg.showinfo('GVM Info Box', 'Revision r0241 \n\nImproves Step order cleaning.\nAdd Step End to Start Sampling.\n\nCopyright by KIM\n\n2022년까지만 License가 허가 됨.\n라이센스에 따라 2022년이 지나면 사용자는 지워야 합니다.\n\nFor my Galaxy and CG children')  
+            
+        # Add another Menu to the Menu Bar and an item
+        help_menu = Menu(menu_bar, tearoff=0)
+        help_menu.add_command(label="About", command=_msgBox)   # display messagebox when clicked
+        menu_bar.add_cascade(label="Help", menu=help_menu)
+        
+        # Change the tab1 windows icon
+        self.win.iconbitmap(resources.icon)
+        
+        # call function
+        self.usingGlobal()
+        
+        
+        # Add Tooltips -----------------------------------------------------
+        # Add a Tooltip to the Spinbox
+        ToolTip(self.Timeseries_scrol, 'This is a Message box')
+        ToolTip(self.Unit_scrol, 'This is a Message box')
+
+                 
+#======================
+# Start GUI
+#======================
+oop = OOP()
+oop.win.mainloop()
